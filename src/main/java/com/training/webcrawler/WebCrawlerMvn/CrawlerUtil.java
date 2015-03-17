@@ -1,9 +1,7 @@
 package com.training.webcrawler.WebCrawlerMvn;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -136,11 +134,10 @@ public class CrawlerUtil
 	public static void setNewDir(String path) throws IOException
 	{
 		CrawlerUtil.setDirPath(path);
-		if (checkIfPrevSucc().length() == 0)
-		{
-			CrawlerUtil.deleteDirectory(new File(path));
-			new File(path).mkdir();
-		}
+
+		CrawlerUtil.deleteDirectory(new File(path));
+		new File(path).mkdir();
+
 	}
 
 	/**
@@ -150,46 +147,30 @@ public class CrawlerUtil
 	 * @return
 	 * @throws IOException
 	 */
-
-	public static String checkIfPrevSucc() throws IOException
-	{
-		BufferedReader br = null;
-
-		try
-		{
-
-			String sCurrentLine;
-
-			br = new BufferedReader(
-					new FileReader(getDirPath() + "/status.txt"));
-
-			while ((sCurrentLine = br.readLine()) != null)
-			{
-				if (sCurrentLine.contains("Timed out"))
-				{
-					setFolderDownloaded(sCurrentLine.substring(
-							sCurrentLine.length() - 9,
-							sCurrentLine.length() - 3));
-					setFileInc(Integer.parseInt(sCurrentLine.substring(
-							sCurrentLine.length() - 2, sCurrentLine.length())));
-					return getFolderDownloaded();
-				}
-			}
-
-		}
-		catch (IOException e)
-		{
-			if (e.getMessage().contains("No such file or directory"))
-				return "";
-			throw e;
-		}
-		finally
-		{
-			if (br != null) br.close();
-		}
-
-		return "";
-	}
+	/*
+	 * 
+	 * public static String checkIfPrevSucc() throws IOException {
+	 * BufferedReader br = null;
+	 * 
+	 * try {
+	 * 
+	 * String sCurrentLine;
+	 * 
+	 * br = new BufferedReader( new FileReader(getDirPath() + "/status.txt"));
+	 * 
+	 * while ((sCurrentLine = br.readLine()) != null) { if
+	 * (sCurrentLine.contains("Timed out")) {
+	 * setFolderDownloaded(sCurrentLine.substring( sCurrentLine.length() - 9,
+	 * sCurrentLine.length() - 3));
+	 * setFileInc(Integer.parseInt(sCurrentLine.substring( sCurrentLine.length()
+	 * - 2, sCurrentLine.length()))); return getFolderDownloaded(); } }
+	 * 
+	 * } catch (IOException e) { if
+	 * (e.getMessage().contains("No such file or directory")) return ""; throw
+	 * e; } finally { if (br != null) br.close(); }
+	 * 
+	 * return ""; }
+	 */
 
 	/**
 	 * This method checks if the link has already been parsed.
@@ -237,10 +218,7 @@ public class CrawlerUtil
 		for (Element link : links)
 		{
 
-			if (depth == 0
-					&& (getDirectoryName(link.attr("abs:href")).compareTo(
-							getFolderDownloaded()) < 0 || getFolderDownloaded()
-							.length() == 0))
+			if (depth == 0)
 			{
 				CrawlerUtil.createDirectory(link.attr("abs:href"));
 				CrawlerUtil.setFileInc(0); // if new month create a folder for
@@ -279,6 +257,18 @@ public class CrawlerUtil
 			}
 
 		}
+	}
+
+	/**
+	 * 
+	 */
+
+	public static void getEmailLinks(String url, Document doc, int depth)
+			throws IOException
+	{
+		URLCrawler.processPage(url, 2);
+		CrawlerUtil.doPagination(doc, "a[href*=thread?]", depth);
+		CrawlerUtil.storeDataInFile("Success", "statusFile");
 	}
 
 	/**

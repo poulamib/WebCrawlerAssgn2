@@ -1,7 +1,6 @@
 package com.training.webcrawler.WebCrawlerMvn;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,17 +30,8 @@ public class URLCrawler
 	{
 
 		CrawlerUtil.setNewDir(path);
-		try
-		{
-			processPage(url, depth);
-			CrawlerUtil.storeDataInFile("Success", "statusDir");
-		}
-		catch (SocketTimeoutException e)
-		{
-			CrawlerUtil.storeDataInFile(
-					"Timed out " + CrawlerUtil.getFolderName() + " "
-							+ CrawlerUtil.getFileInc(), "statusDir");
-		}
+
+		processPage(url, depth);
 
 	}
 
@@ -73,9 +63,7 @@ public class URLCrawler
 		}
 		else if (depth == 1)
 		{
-			processPage(url, 2);
-			CrawlerUtil.doPagination(doc, "a[href*=thread?]", depth);
-			CrawlerUtil.storeDataInFile("Success", "statusFile");
+			CrawlerUtil.getEmailLinks(url, doc, depth);
 		}
 		else if (depth == 2)
 		{
